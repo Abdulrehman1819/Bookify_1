@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
-import { OwnerSidebar } from '@/components/layout/Sidebar'
+import { OwnerShell } from '@/components/layout/OwnerShell'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { useToast } from '@/hooks/use-toast'
 import { Plus, MapPin, Pencil, Trash2 } from 'lucide-react'
@@ -71,18 +71,17 @@ export default function BranchesPage() {
   if (loading || !profile) return null
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC]">
-      <OwnerSidebar />
-      <main className="flex-1 p-8">
+    <OwnerShell>
+      <div className="p-4 lg:p-8">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-[#1E293B]">Branches</h1>
+          <h1 className="text-xl lg:text-2xl font-bold text-[#1E293B]">Branches</h1>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button className="bg-[#6366F1] hover:bg-[#6366F1]/90" onClick={openAdd}>
                 <Plus className="h-4 w-4 mr-2" /> Add branch
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-sm sm:max-w-lg">
               <DialogHeader><DialogTitle>{editing ? 'Edit branch' : 'Add branch'}</DialogTitle></DialogHeader>
               <div className="space-y-3 mt-2">
                 <div className="space-y-1"><Label>Name</Label><Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} /></div>
@@ -103,20 +102,20 @@ export default function BranchesPage() {
         {branches.length === 0 ? (
           <p className="text-[#94A3B8]">No branches yet. Add your first branch.</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {branches.map(b => (
               <Card key={b.id} className="rounded-2xl shadow-sm">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
-                    <div>
+                    <div className="min-w-0 mr-2">
                       <h3 className="font-semibold text-[#1E293B]">{b.name}</h3>
                       <p className="text-sm text-[#94A3B8] flex items-center gap-1 mt-1">
-                        <MapPin className="h-3 w-3" />{b.area ? `${b.area}, ` : ''}{b.city}
+                        <MapPin className="h-3 w-3 shrink-0" />{b.area ? `${b.area}, ` : ''}{b.city}
                       </p>
                       {b.address && <p className="text-xs text-[#94A3B8] mt-1">{b.address}</p>}
                       {b.phone && <p className="text-xs text-[#94A3B8] mt-1">{b.phone}</p>}
                     </div>
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 shrink-0">
                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(b)}><Pencil className="h-3.5 w-3.5" /></Button>
                       <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500" onClick={() => handleDelete(b.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                     </div>
@@ -126,7 +125,7 @@ export default function BranchesPage() {
             ))}
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </OwnerShell>
   )
 }

@@ -55,18 +55,18 @@ export function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-      <div className="container flex h-16 items-center justify-between">
+      <div className="container flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2">
           <span className="text-2xl font-bold text-[#6366F1]">Bookify</span>
         </Link>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           {!loading && (
             <>
               {user ? (
                 <>
                   {user.role === 'SHOP_OWNER' && (
-                    <Link href="/owner/dashboard">
+                    <Link href="/owner/dashboard" className="hidden sm:block">
                       <Button variant="ghost" size="sm" className="gap-2">
                         <LayoutDashboard className="h-4 w-4" />
                         Dashboard
@@ -74,7 +74,7 @@ export function Navbar() {
                     </Link>
                   )}
                   {user.role === 'WORKER' && (
-                    <Link href="/worker/calendar">
+                    <Link href="/worker/calendar" className="hidden sm:block">
                       <Button variant="ghost" size="sm" className="gap-2">
                         <Calendar className="h-4 w-4" />
                         My Calendar
@@ -82,7 +82,7 @@ export function Navbar() {
                     </Link>
                   )}
                   {(user.role === 'CUSTOMER' || user.role === 'SHOP_OWNER') && (
-                    <Link href="/list-business">
+                    <Link href="/list-business" className="hidden sm:block">
                       <Button variant="outline" size="sm">
                         List your business
                       </Button>
@@ -116,6 +116,21 @@ export function Navbar() {
                           <Link href="/owner/dashboard" className="cursor-pointer">
                             <LayoutDashboard className="mr-2 h-4 w-4" />
                             Dashboard
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
+                      {user.role === 'WORKER' && (
+                        <DropdownMenuItem asChild>
+                          <Link href="/worker/calendar" className="cursor-pointer">
+                            <Calendar className="mr-2 h-4 w-4" />
+                            My Calendar
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
+                      {(user.role === 'CUSTOMER' || user.role === 'SHOP_OWNER') && (
+                        <DropdownMenuItem asChild>
+                          <Link href="/list-business" className="cursor-pointer sm:hidden">
+                            List your business
                           </Link>
                         </DropdownMenuItem>
                       )}

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
-import { OwnerSidebar } from '@/components/layout/Sidebar'
+import { OwnerShell } from '@/components/layout/OwnerShell'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -140,18 +140,17 @@ export default function StaffPage() {
   if (loading || !profile) return null
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC]">
-      <OwnerSidebar />
-      <main className="flex-1 p-8">
+    <OwnerShell>
+      <div className="p-4 lg:p-8">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-[#1E293B]">Staff</h1>
+          <h1 className="text-xl lg:text-2xl font-bold text-[#1E293B]">Staff</h1>
           <Dialog open={addOpen} onOpenChange={setAddOpen}>
             <DialogTrigger asChild>
               <Button className="bg-[#6366F1] hover:bg-[#6366F1]/90" onClick={() => setAddOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" /> Add staff
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-sm sm:max-w-lg">
               <DialogHeader><DialogTitle>Add staff member</DialogTitle></DialogHeader>
               <div className="space-y-3 mt-2">
                 <div className="space-y-1"><Label>Name</Label><Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} /></div>
@@ -175,7 +174,7 @@ export default function StaffPage() {
         {staff.length === 0 ? (
           <p className="text-[#94A3B8]">No staff yet. Add your first team member.</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {staff.map(s => {
               const branch = branches.find(b => b.id === s.branch_id)
               const assignedServices = s.staff_services.map(ss => ss.services).filter(Boolean) as ServiceItem[]
@@ -188,8 +187,8 @@ export default function StaffPage() {
                         <AvatarFallback className="rounded-xl bg-[#6366F1]/10 text-[#6366F1]">{s.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-[#1E293B]">{s.name}</h3>
-                        {s.title && <p className="text-xs text-[#94A3B8]">{s.title}</p>}
+                        <h3 className="font-semibold text-[#1E293B] truncate">{s.name}</h3>
+                        {s.title && <p className="text-xs text-[#94A3B8] truncate">{s.title}</p>}
                         {branch && <Badge variant="secondary" className="text-xs mt-1">{branch.name}</Badge>}
                       </div>
                       <div className="flex gap-1 flex-shrink-0">
@@ -209,7 +208,6 @@ export default function StaffPage() {
                       </div>
                     </div>
 
-                    {/* Assigned services */}
                     <div className="border-t pt-3">
                       <p className="text-xs font-medium text-[#94A3B8] mb-2">Services</p>
                       {assignedServices.length === 0 ? (
@@ -239,7 +237,7 @@ export default function StaffPage() {
             })}
           </div>
         )}
-      </main>
+      </div>
 
       {/* Manage services dialog */}
       <Dialog open={!!managingStaff} onOpenChange={open => { if (!open) setManagingStaff(null) }}>
@@ -282,6 +280,6 @@ export default function StaffPage() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </OwnerShell>
   )
 }

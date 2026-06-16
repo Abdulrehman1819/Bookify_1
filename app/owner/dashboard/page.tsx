@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
-import { OwnerSidebar } from '@/components/layout/Sidebar'
+import { OwnerShell } from '@/components/layout/OwnerShell'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Calendar, Clock, TrendingUp } from 'lucide-react'
@@ -39,19 +39,18 @@ export default function OwnerDashboard() {
   if (loading || !profile) return null
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC]">
-      <OwnerSidebar />
-      <main className="flex-1 p-8">
-        <h1 className="text-2xl font-bold text-[#1E293B] mb-6">Dashboard</h1>
+    <OwnerShell>
+      <div className="p-4 lg:p-8">
+        <h1 className="text-xl lg:text-2xl font-bold text-[#1E293B] mb-6">Dashboard</h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           {[
             { label: 'Today', value: stats.today, icon: Calendar, color: 'text-[#6366F1]' },
             { label: 'This week', value: stats.week, icon: Clock, color: 'text-emerald-600' },
             { label: 'This month', value: stats.month, icon: TrendingUp, color: 'text-amber-600' },
           ].map(({ label, value, icon: Icon, color }) => (
             <Card key={label} className="rounded-2xl shadow-sm">
-              <CardContent className="p-6 flex items-center gap-4">
+              <CardContent className="p-4 lg:p-6 flex items-center gap-4">
                 <div className={`p-3 rounded-xl bg-gray-100 ${color}`}>
                   <Icon className="h-5 w-5" />
                 </div>
@@ -73,16 +72,18 @@ export default function OwnerDashboard() {
             ) : (
               <div className="space-y-3">
                 {bookings.map(b => (
-                  <div key={b.id} className="flex items-center justify-between py-2 border-b last:border-0">
-                    <div>
-                      <p className="font-medium text-sm text-[#1E293B]">
+                  <div key={b.id} className="flex items-start justify-between gap-2 py-2 border-b last:border-0">
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm text-[#1E293B] truncate">
                         {b.profiles ? `${b.profiles.first_name} ${b.profiles.last_name}` : 'Customer'}
                       </p>
-                      <p className="text-xs text-[#94A3B8]">
-                        {b.booking_date} at {b.start_time} · {b.staff?.name} · {b.business_branches?.name}
+                      <p className="text-xs text-[#94A3B8] truncate">
+                        {b.booking_date} at {b.start_time}
+                        {b.staff?.name && ` · ${b.staff.name}`}
+                        {b.business_branches?.name && ` · ${b.business_branches.name}`}
                       </p>
                     </div>
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_COLORS[b.status] || ''}`}>
+                    <span className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_COLORS[b.status] || ''}`}>
                       {b.status.charAt(0) + b.status.slice(1).toLowerCase()}
                     </span>
                   </div>
@@ -91,7 +92,7 @@ export default function OwnerDashboard() {
             )}
           </CardContent>
         </Card>
-      </main>
-    </div>
+      </div>
+    </OwnerShell>
   )
 }

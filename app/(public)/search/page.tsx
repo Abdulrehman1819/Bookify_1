@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
@@ -13,7 +13,7 @@ import { Search } from 'lucide-react'
 
 const TYPES = ['SALOON', 'CLINIC', 'GYM', 'SPA', 'OTHER']
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [businesses, setBusinesses] = useState<Business[]>([])
@@ -50,60 +50,72 @@ export default function SearchPage() {
   }
 
   return (
+    <main className="flex-1 bg-[#F8FAFC] py-8 px-4">
+      <div className="container">
+        <h1 className="text-2xl font-bold text-[#1E293B] mb-6">Find services</h1>
+
+        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 mb-8">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94A3B8]" />
+            <Input
+              placeholder="Search businesses…"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Input
+            placeholder="City"
+            value={city}
+            onChange={e => setCity(e.target.value)}
+            className="sm:w-36"
+          />
+          <Select value={type} onValueChange={setType}>
+            <SelectTrigger className="sm:w-40">
+              <SelectValue placeholder="All types" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All types</SelectItem>
+              {TYPES.map(t => (
+                <SelectItem key={t} value={t}>
+                  {t.charAt(0) + t.slice(1).toLowerCase()}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button type="submit" className="bg-[#6366F1] hover:bg-[#6366F1]/90">Search</Button>
+        </form>
+
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6366F1]" />
+          </div>
+        ) : businesses.length === 0 ? (
+          <div className="text-center py-20 text-[#94A3B8]">
+            <p className="text-lg mb-2">No businesses found</p>
+            <p className="text-sm">Try adjusting your search filters</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {businesses.map(b => <BusinessCard key={b.id} business={b} />)}
+          </div>
+        )}
+      </div>
+    </main>
+  )
+}
+
+export default function SearchPage() {
+  return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 bg-[#F8FAFC] py-8 px-4">
-        <div className="container">
-          <h1 className="text-2xl font-bold text-[#1E293B] mb-6">Find services</h1>
-
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 mb-8">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94A3B8]" />
-              <Input
-                placeholder="Search businesses…"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            <Input
-              placeholder="City"
-              value={city}
-              onChange={e => setCity(e.target.value)}
-              className="sm:w-36"
-            />
-            <Select value={type} onValueChange={setType}>
-              <SelectTrigger className="sm:w-40">
-                <SelectValue placeholder="All types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All types</SelectItem>
-                {TYPES.map(t => (
-                  <SelectItem key={t} value={t}>
-                    {t.charAt(0) + t.slice(1).toLowerCase()}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button type="submit" className="bg-[#6366F1] hover:bg-[#6366F1]/90">Search</Button>
-          </form>
-
-          {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6366F1]" />
-            </div>
-          ) : businesses.length === 0 ? (
-            <div className="text-center py-20 text-[#94A3B8]">
-              <p className="text-lg mb-2">No businesses found</p>
-              <p className="text-sm">Try adjusting your search filters</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {businesses.map(b => <BusinessCard key={b.id} business={b} />)}
-            </div>
-          )}
-        </div>
-      </main>
+      <Suspense fallback={
+        <main className="flex-1 bg-[#F8FAFC] flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6366F1]" />
+        </main>
+      }>
+        <SearchContent />
+      </Suspense>
       <Footer />
     </div>
   )

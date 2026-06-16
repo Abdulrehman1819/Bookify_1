@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
-import { OwnerSidebar } from '@/components/layout/Sidebar'
+import { OwnerShell } from '@/components/layout/OwnerShell'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -57,10 +57,9 @@ export default function OwnerSettingsPage() {
   if (loading || !profile) return null
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC]">
-      <OwnerSidebar />
-      <main className="flex-1 p-8 max-w-2xl">
-        <h1 className="text-2xl font-bold text-[#1E293B] mb-6">Business Settings</h1>
+    <OwnerShell>
+      <div className="p-4 lg:p-8 max-w-2xl">
+        <h1 className="text-xl lg:text-2xl font-bold text-[#1E293B] mb-6">Business Settings</h1>
 
         <Card className="rounded-2xl shadow-sm">
           <CardHeader><CardTitle className="text-base">Business Details</CardTitle></CardHeader>
@@ -88,7 +87,7 @@ export default function OwnerSettingsPage() {
             </Button>
           </CardContent>
         </Card>
-      </main>
-    </div>
+      </div>
+    </OwnerShell>
   )
 }

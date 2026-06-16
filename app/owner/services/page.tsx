@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
-import { OwnerSidebar } from '@/components/layout/Sidebar'
+import { OwnerShell } from '@/components/layout/OwnerShell'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -71,16 +71,17 @@ export default function ServicesPage() {
   if (loading || !profile) return null
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC]">
-      <OwnerSidebar />
-      <main className="flex-1 p-8">
+    <OwnerShell>
+      <div className="p-4 lg:p-8">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-[#1E293B]">Services</h1>
+          <h1 className="text-xl lg:text-2xl font-bold text-[#1E293B]">Services</h1>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-[#6366F1] hover:bg-[#6366F1]/90" onClick={openAdd}><Plus className="h-4 w-4 mr-2" /> Add service</Button>
+              <Button className="bg-[#6366F1] hover:bg-[#6366F1]/90" onClick={openAdd}>
+                <Plus className="h-4 w-4 mr-2" /> Add service
+              </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-sm sm:max-w-lg">
               <DialogHeader><DialogTitle>{editing ? 'Edit service' : 'Add service'}</DialogTitle></DialogHeader>
               <div className="space-y-3 mt-2">
                 <div className="space-y-1"><Label>Service name</Label><Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} /></div>
@@ -98,12 +99,12 @@ export default function ServicesPage() {
         {services.length === 0 ? (
           <p className="text-[#94A3B8]">No services yet. Add your first service.</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {services.map(s => (
               <Card key={s.id} className="rounded-2xl shadow-sm">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
-                    <div>
+                    <div className="min-w-0 mr-2">
                       <h3 className="font-semibold text-[#1E293B]">{s.name}</h3>
                       {s.description && <p className="text-xs text-[#94A3B8] mt-0.5">{s.description}</p>}
                       <div className="flex items-center gap-3 mt-2">
@@ -111,7 +112,7 @@ export default function ServicesPage() {
                         <span className="font-semibold text-[#6366F1] text-sm">PKR {Number(s.price).toLocaleString()}</span>
                       </div>
                     </div>
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 shrink-0">
                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(s)}><Pencil className="h-3.5 w-3.5" /></Button>
                       <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500" onClick={() => handleDelete(s.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                     </div>
@@ -121,7 +122,7 @@ export default function ServicesPage() {
             ))}
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </OwnerShell>
   )
 }

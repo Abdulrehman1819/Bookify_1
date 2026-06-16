@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useToast } from '@/hooks/use-toast'
 import { Star, X } from 'lucide-react'
 import { format } from 'date-fns'
@@ -99,18 +99,18 @@ function BookingCard({ booking, onCancel, onReview }: { booking: Booking; onCanc
     <Card className="rounded-2xl shadow-sm">
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
               <h3 className="font-semibold text-[#1E293B]">{booking.staff?.name}</h3>
               <Badge variant="secondary" className="text-xs">{booking.business_branches?.name}</Badge>
             </div>
             <p className="text-sm text-[#94A3B8]">
-              {format(new Date(booking.booking_date), 'EEEE, MMMM d')} · {booking.start_time}–{booking.end_time}
+              {format(new Date(booking.booking_date), 'EEEE, MMM d')} · {booking.start_time}–{booking.end_time}
             </p>
             {services && <p className="text-xs text-[#94A3B8] mt-1">{services}</p>}
             {total > 0 && <p className="text-sm font-medium text-[#1E293B] mt-1">PKR {total.toLocaleString()}</p>}
           </div>
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-col items-end gap-2 shrink-0">
             <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_COLORS[booking.status]}`}>
               {booking.status.charAt(0) + booking.status.slice(1).toLowerCase()}
             </span>
@@ -171,17 +171,17 @@ export default function CustomerBookingsPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 bg-[#F8FAFC] py-8 px-4">
+      <main className="flex-1 bg-[#F8FAFC] py-6 px-4">
         <div className="container max-w-2xl">
-          <h1 className="text-2xl font-bold text-[#1E293B] mb-6">My Bookings</h1>
+          <h1 className="text-xl lg:text-2xl font-bold text-[#1E293B] mb-6">My Bookings</h1>
           <Dialog open={!!reviewBooking} onOpenChange={open => { if (!open) setReviewBooking(null) }}>
             {reviewBooking && <ReviewDialog booking={reviewBooking} onDone={() => { setReviewBooking(null); fetchBookings() }} />}
           </Dialog>
           <Tabs defaultValue="upcoming">
-            <TabsList className="mb-4">
-              <TabsTrigger value="upcoming">Upcoming ({upcoming.length})</TabsTrigger>
-              <TabsTrigger value="past">Past ({past.length})</TabsTrigger>
-              <TabsTrigger value="cancelled">Cancelled ({cancelled.length})</TabsTrigger>
+            <TabsList className="mb-4 w-full">
+              <TabsTrigger value="upcoming" className="flex-1">Upcoming ({upcoming.length})</TabsTrigger>
+              <TabsTrigger value="past" className="flex-1">Past ({past.length})</TabsTrigger>
+              <TabsTrigger value="cancelled" className="flex-1">Cancelled ({cancelled.length})</TabsTrigger>
             </TabsList>
             <TabsContent value="upcoming" className="space-y-3">
               {upcoming.length === 0 ? <p className="text-[#94A3B8] text-center py-8">No upcoming bookings.</p> : upcoming.map(b => <BookingCard key={b.id} booking={b} onCancel={handleCancel} />)}

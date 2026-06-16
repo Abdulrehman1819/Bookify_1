@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
-import { OwnerSidebar } from '@/components/layout/Sidebar'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { OwnerShell } from '@/components/layout/OwnerShell'
+import { Card, CardContent } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/hooks/use-toast'
@@ -91,29 +91,28 @@ export default function OwnerBookingsPage() {
   if (loading || !profile) return null
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC]">
-      <OwnerSidebar />
-      <main className="flex-1 p-8">
-        <h1 className="text-2xl font-bold text-[#1E293B] mb-6">Bookings</h1>
+    <OwnerShell>
+      <div className="p-4 lg:p-8">
+        <h1 className="text-xl lg:text-2xl font-bold text-[#1E293B] mb-6">Bookings</h1>
 
-        <div className="flex flex-wrap gap-3 mb-6">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 mb-6">
           <Select value={filters.branchId} onValueChange={v => setFilters(p => ({ ...p, branchId: v === 'all' ? '' : v }))}>
-            <SelectTrigger className="w-40"><SelectValue placeholder="All branches" /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-40"><SelectValue placeholder="All branches" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All branches</SelectItem>
               {branches.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={filters.staffId} onValueChange={v => setFilters(p => ({ ...p, staffId: v === 'all' ? '' : v }))}>
-            <SelectTrigger className="w-40"><SelectValue placeholder="All staff" /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-40"><SelectValue placeholder="All staff" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All staff</SelectItem>
               {staff.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
             </SelectContent>
           </Select>
-          <Input type="date" value={filters.date} onChange={e => setFilters(p => ({ ...p, date: e.target.value }))} className="w-40" />
+          <Input type="date" value={filters.date} onChange={e => setFilters(p => ({ ...p, date: e.target.value }))} className="w-full sm:w-40" />
           <Select value={filters.status} onValueChange={v => setFilters(p => ({ ...p, status: v === 'all' ? '' : v }))}>
-            <SelectTrigger className="w-40"><SelectValue placeholder="All statuses" /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-40"><SelectValue placeholder="All statuses" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All statuses</SelectItem>
               {STATUSES.map(s => <SelectItem key={s} value={s}>{s.charAt(0) + s.slice(1).toLowerCase()}</SelectItem>)}
@@ -130,19 +129,21 @@ export default function OwnerBookingsPage() {
                 {bookings.map(b => {
                   const services = b.booking_services?.map(bs => bs.services?.name).filter(Boolean).join(', ')
                   return (
-                    <div key={b.id} className="p-4 flex items-center justify-between flex-wrap gap-3">
-                      <div>
+                    <div key={b.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="min-w-0">
                         <p className="font-medium text-sm text-[#1E293B]">
                           {b.profiles ? `${b.profiles.first_name} ${b.profiles.last_name}` : 'Customer'}
                           {b.profiles?.phone && <span className="text-[#94A3B8] ml-2 text-xs">{b.profiles.phone}</span>}
                         </p>
-                        <p className="text-xs text-[#94A3B8]">
-                          {b.booking_date} · {b.start_time}–{b.end_time} · {b.staff?.name} · {b.business_branches?.name}
+                        <p className="text-xs text-[#94A3B8] mt-0.5">
+                          {b.booking_date} · {b.start_time}–{b.end_time}
+                          {b.staff?.name && ` · ${b.staff.name}`}
+                          {b.business_branches?.name && ` · ${b.business_branches.name}`}
                         </p>
                         {services && <p className="text-xs text-[#94A3B8] mt-0.5">{services}</p>}
                       </div>
                       <Select value={b.status} onValueChange={v => updateStatus(b.id, v)}>
-                        <SelectTrigger className={`w-36 text-xs font-medium border-0 ${STATUS_COLORS[b.status]}`}>
+                        <SelectTrigger className={`w-full sm:w-36 text-xs font-medium border-0 ${STATUS_COLORS[b.status]}`}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -156,7 +157,7 @@ export default function OwnerBookingsPage() {
             )}
           </CardContent>
         </Card>
-      </main>
-    </div>
+      </div>
+    </OwnerShell>
   )
 }

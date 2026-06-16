@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
-import { OwnerSidebar } from '@/components/layout/Sidebar'
+import { OwnerShell } from '@/components/layout/OwnerShell'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -84,7 +84,6 @@ export default function SchedulePage() {
     if (lv.leaves) setLeaves(lv.leaves)
     if (bk.bookings) setBookings(bk.bookings)
 
-    // Fetch staff name using business id from me
     if (me.business?.id) {
       const staffRes = await fetch(`/api/businesses/${me.business.id}/staff`).then(r => r.json())
       const found = (staffRes.staff || []).find((s: { id: string; name: string }) => s.id === staffId)
@@ -92,7 +91,6 @@ export default function SchedulePage() {
     }
   }
 
-  // Convert bookings to FullCalendar events
   const calendarEvents = bookings.map(b => {
     const color = STATUS_COLORS[b.status] ?? STATUS_COLORS.PENDING
     const customerName = b.profiles
@@ -114,7 +112,6 @@ export default function SchedulePage() {
     }
   })
 
-  // Working hours shown as light background events
   const bgEvents = hours
     .filter(h => !h.is_off)
     .map(h => ({
@@ -179,29 +176,27 @@ export default function SchedulePage() {
   if (loading || !profile) return null
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC]">
-      <OwnerSidebar />
-      <main className="flex-1 p-8 overflow-hidden">
+    <OwnerShell>
+      <div className="p-4 lg:p-8 overflow-hidden">
         <Link href="/owner/staff" className="flex items-center gap-1 text-sm text-[#94A3B8] hover:text-[#1E293B] mb-4">
           <ChevronLeft className="h-4 w-4" /> Back to staff
         </Link>
-        <h1 className="text-2xl font-bold text-[#1E293B] mb-6">
+        <h1 className="text-xl lg:text-2xl font-bold text-[#1E293B] mb-6">
           {staffName ? `${staffName}'s Calendar` : 'Staff Calendar'}
         </h1>
 
         <Tabs defaultValue="calendar">
-          <TabsList className="mb-6">
-            <TabsTrigger value="calendar" className="gap-1.5">
+          <TabsList className="mb-6 w-full sm:w-auto">
+            <TabsTrigger value="calendar" className="flex-1 sm:flex-none gap-1.5">
               <CalendarDays className="h-4 w-4" /> Calendar
             </TabsTrigger>
-            <TabsTrigger value="schedule" className="gap-1.5">
-              <Settings2 className="h-4 w-4" /> Schedule Settings
+            <TabsTrigger value="schedule" className="flex-1 sm:flex-none gap-1.5">
+              <Settings2 className="h-4 w-4" /> Schedule
             </TabsTrigger>
           </TabsList>
 
           {/* ── CALENDAR TAB ── */}
           <TabsContent value="calendar">
-            {/* Status legend */}
             <div className="flex flex-wrap gap-3 mb-4">
               {Object.entries(STATUS_COLORS).map(([key, val]) => (
                 <span key={key} className="flex items-center gap-1.5 text-xs text-[#1E293B]">
@@ -215,42 +210,44 @@ export default function SchedulePage() {
               </span>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
-              <FullCalendar
-                ref={calendarRef}
-                plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
-                initialView="timeGridWeek"
-                headerToolbar={{
-                  left: 'prev,next today',
-                  center: 'title',
-                  right: 'dayGridMonth,timeGridWeek,timeGridDay',
-                }}
-                events={[...calendarEvents, ...bgEvents]}
-                eventClick={handleEventClick}
-                allDaySlot={false}
-                slotMinTime="07:00:00"
-                slotMaxTime="22:00:00"
-                slotDuration="00:30:00"
-                slotLabelInterval="01:00"
-                expandRows
-                height="calc(100vh - 260px)"
-                nowIndicator
-                eventContent={(info) => {
-                  if (info.event.display === 'background') return null
-                  return (
-                    <div className="px-1 py-0.5 h-full overflow-hidden">
-                      <p className="text-[11px] font-semibold leading-tight truncate">{info.timeText}</p>
-                      <p className="text-[11px] leading-tight truncate mt-0.5">{info.event.title}</p>
-                    </div>
-                  )
-                }}
-              />
+            <div className="bg-white rounded-2xl shadow-sm overflow-x-auto border border-gray-100">
+              <div className="min-w-[600px]">
+                <FullCalendar
+                  ref={calendarRef}
+                  plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
+                  initialView="timeGridWeek"
+                  headerToolbar={{
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'timeGridWeek,timeGridDay',
+                  }}
+                  events={[...calendarEvents, ...bgEvents]}
+                  eventClick={handleEventClick}
+                  allDaySlot={false}
+                  slotMinTime="07:00:00"
+                  slotMaxTime="22:00:00"
+                  slotDuration="00:30:00"
+                  slotLabelInterval="01:00"
+                  expandRows
+                  height="auto"
+                  nowIndicator
+                  eventContent={(info) => {
+                    if (info.event.display === 'background') return null
+                    return (
+                      <div className="px-1 py-0.5 h-full overflow-hidden">
+                        <p className="text-[11px] font-semibold leading-tight truncate">{info.timeText}</p>
+                        <p className="text-[11px] leading-tight truncate mt-0.5">{info.event.title}</p>
+                      </div>
+                    )
+                  }}
+                />
+              </div>
             </div>
 
-            {/* Booking detail popover */}
+            {/* Booking detail overlay */}
             {selectedBooking && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={() => setSelectedBooking(null)}>
-                <div className="bg-white rounded-2xl shadow-xl p-6 w-80 max-w-full" onClick={e => e.stopPropagation()}>
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4" onClick={() => setSelectedBooking(null)}>
+                <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <p className="font-semibold text-[#1E293B] text-base">
@@ -306,10 +303,10 @@ export default function SchedulePage() {
             <Card className="rounded-2xl shadow-sm mb-6">
               <CardHeader><CardTitle className="text-base">Working Hours</CardTitle></CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {hours.map((day, i) => (
-                    <div key={i} className="flex items-center gap-4">
-                      <div className="w-28 flex items-center gap-2">
+                    <div key={i} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 pb-3 border-b last:border-0 last:pb-0">
+                      <div className="flex items-center gap-2 w-32 shrink-0">
                         <Switch
                           checked={!day.is_off}
                           onCheckedChange={v => setHours(prev => prev.map((h, j) => j === i ? { ...h, is_off: !v } : h))}
@@ -319,19 +316,19 @@ export default function SchedulePage() {
                       {day.is_off ? (
                         <span className="text-sm text-[#94A3B8]">Day off</span>
                       ) : (
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <Input
                             type="time"
                             value={day.start_time}
                             onChange={e => setHours(prev => prev.map((h, j) => j === i ? { ...h, start_time: e.target.value } : h))}
-                            className="w-32"
+                            className="w-28"
                           />
                           <span className="text-sm text-[#94A3B8]">to</span>
                           <Input
                             type="time"
                             value={day.end_time}
                             onChange={e => setHours(prev => prev.map((h, j) => j === i ? { ...h, end_time: e.target.value } : h))}
-                            className="w-32"
+                            className="w-28"
                           />
                           <Button
                             variant="ghost" size="sm"
@@ -350,12 +347,12 @@ export default function SchedulePage() {
                       <div className="space-y-2">
                         {breaks.map(b => (
                           <div key={b.id} className="flex items-center gap-3 text-sm">
-                            <span className="w-10 text-[#94A3B8]">{DAYS[b.day_of_week].slice(0, 3)}</span>
+                            <span className="w-10 text-[#94A3B8] shrink-0">{DAYS[b.day_of_week].slice(0, 3)}</span>
                             <span>{b.start_time} – {b.end_time}</span>
                             {b.label && <span className="text-[#94A3B8]">({b.label})</span>}
                             <Button
                               variant="ghost" size="icon"
-                              className="h-6 w-6 text-red-500"
+                              className="h-6 w-6 text-red-500 ml-auto"
                               onClick={() => b.id && deleteBreak(b.id)}
                             >
                               <Trash2 className="h-3 w-3" />
@@ -376,7 +373,7 @@ export default function SchedulePage() {
               <CardHeader><CardTitle className="text-base">Leave Days</CardTitle></CardHeader>
               <CardContent>
                 <div className="flex gap-2 mb-3">
-                  <Input type="date" value={newLeave} onChange={e => setNewLeave(e.target.value)} className="w-44" />
+                  <Input type="date" value={newLeave} onChange={e => setNewLeave(e.target.value)} className="flex-1 sm:w-44 sm:flex-none" />
                   <Button className="bg-[#6366F1] hover:bg-[#6366F1]/90" onClick={addLeave} disabled={!newLeave}>
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -403,7 +400,7 @@ export default function SchedulePage() {
             </Card>
           </TabsContent>
         </Tabs>
-      </main>
-    </div>
+      </div>
+    </OwnerShell>
   )
 }
